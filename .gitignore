@@ -1,0 +1,41 @@
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Virtual environments
+.venv/
+env/
+venv/
+ENV/
+
+# macOS
+.DS_Store
+
+# VS Code
+.vscode/
+
+# Streamlit
+.streamlit/secrets.toml
+
+# Audio recordings and large files
+*.wav
+*.mp3
+*.ogg
+*.flac
+
+# Environment variables
+.env
+
+# Jupyter Notebooks (if any)
+*.ipynb_checkpoints
+
+# Model files (optional)
+*.onnx
+*.pt
+*.pth
+
+# Python egg
+*.egg-info/
+dist/
+build/
