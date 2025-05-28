@@ -139,9 +139,10 @@ from streamlit_webrtc import webrtc_streamer, WebRtcMode
 if record_query:
     st.markdown("### 🎤 Live Voice Input (Streamlit WebRTC)")
     webrtc_streamer(
-    key="audio-recorder",
-    audio_receiver_size=1024,
-    audio=True)
+        key="audio-recorder",
+        mode=WebRtcMode.SENDRECV,
+        audio=True,
+        video=False)
 
     if st.button("🛑 Stop and Transcribe"):
         if audio_buffer:
