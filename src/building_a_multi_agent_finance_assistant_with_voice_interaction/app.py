@@ -1,9 +1,7 @@
 import sys
 import pysqlite3
 sys.modules["sqlite3"] = pysqlite3
-import sys
-import audioop
-sys.modules['pyaudioop'] = audioop
+
 import os
 import io
 import json
@@ -95,31 +93,34 @@ def is_query_valid(query, gemini_key):
 # —————————————————————————
 user_query = ""
 
-from audiorecorder import audiorecorder
-from pydub import AudioSegment
+if record_query:
+    from audiorecorder import audiorecorder
+    from pydub import AudioSegment
 
-st.markdown("### 🎤 Record your voice query")
+    st.markdown("### 🎤 Record your voice query")
+    audio = audiorecorder("Click to record", "Click to stop recording")
 
-audio = audiorecorder("Click to record", "Click to stop recording")
+    if len(audio) > 0:
+        # Export audio to in-memory buffer as WAV
+        audio_buffer = io.BytesIO()
+        audio.export(audio_buffer, format="wav")
+        audio_bytes = audio_buffer.getvalue()
 
-if len(audio) > 0:
-    st.audio(audio.export().read(), format="audio/wav")
+        st.audio(audio_bytes, format="audio/wav")
 
-    audio.export("audio.wav", format="wav")
-    st.success("✅ Audio recorded and saved.")
+        if st.button("📝 Transcribe Audio"):
+            if not assemblyai_api_key:
+                st.error("AssemblyAI API key is missing.")
+            else:
+                with st.spinner("Transcribing audio..."):
+                    try:
+                        user_query = transcribe_audio_bytes(audio_bytes, assemblyai_api_key)
+                        st.markdown(f"📝 **Transcribed Query**: `{user_query}`")
+                    except Exception as e:
+                        st.error(f"Transcription failed: {e}")
+else:
+    user_query = st.text_input("Enter your financial query")
 
-    if st.button("📝 Transcribe Audio"):
-        if not assemblyai_api_key:
-            st.error("AssemblyAI API key is missing.")
-        else:
-            with st.spinner("Transcribing audio..."):
-                try:
-                    with open("audio.wav", "rb") as f:
-                        audio_bytes = f.read()
-                    user_query = transcribe_audio_bytes(audio_bytes, assemblyai_api_key)
-                    st.markdown(f"📝 **Transcribed Query**: `{user_query}`")
-                except Exception as e:
-                    st.error(f"Transcription failed: {e}")
 # —————————————————————————
 # Process Input and Run Crew
 # —————————————————————————
