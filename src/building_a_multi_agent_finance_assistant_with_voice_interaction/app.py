@@ -26,8 +26,7 @@ st.sidebar.header("🔧 Settings")
 record_query = st.sidebar.checkbox("🎤 Record voice input instead of typing?")
 voice_enabled = st.sidebar.checkbox("🔊 Enable voice output", value=True)
 
-if openai_api_key:
-    os.environ["OPENAI_API_KEY"] = openai_api_key
+
 
 # ElevenLabs API key from secrets (NO user input)
 elevenlabs_api_key = st.secrets["ELEVEN_API_KEY"]
