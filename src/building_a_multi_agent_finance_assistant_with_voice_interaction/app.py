@@ -33,7 +33,7 @@ if openai_api_key:
 # —————————————————————————
 # Whisper model (load once)
 # —————————————————————————
-@st.experimental_singleton(show_spinner=False)
+
 def load_whisper_model():
     return whisper.load_model("small")
 
