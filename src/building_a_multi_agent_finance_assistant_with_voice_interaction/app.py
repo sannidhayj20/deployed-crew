@@ -28,7 +28,7 @@ if openai_api_key:
     os.environ["OPENAI_API_KEY"] = openai_api_key
 
 # ElevenLabs API key from secrets (NO user input)
-elevenlabs_api_key = os.getenv("ELEVENLABS_API_KEY")
+elevenlabs_api_key = st.secrets["ELEVEN_API_KEY"]
 
 # —————————————————————————
 # AssemblyAI Helpers (optional fallback)
