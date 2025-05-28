@@ -37,7 +37,7 @@ if openai_api_key:
 
 def upload_audio(audio_bytes, api_key):
     headers = {
-        "authorization": api_key,
+        "authorization": st.secrets("ASSEMBLY_AI_API"),
         "transfer-encoding": "chunked"
     }
     response = requests.post("https://api.assemblyai.com/v2/upload", headers=headers, data=audio_bytes)
