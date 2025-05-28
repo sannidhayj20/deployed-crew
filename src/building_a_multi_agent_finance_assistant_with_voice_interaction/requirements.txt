@@ -1,3 +1,4 @@
+setuptools<81
 yfinance
 langchain>=0.3.0
 langchain-community>=0.3.0
@@ -13,4 +14,4 @@ langchain-text-splitters
 sounddevice
 scipy
 pydub
-openai-whisper
+openai-whisper==20230905
