@@ -29,7 +29,6 @@ if openai_api_key:
 
 # ElevenLabs API key from secrets (NO user input)
 elevenlabs_api_key = st.secrets["ELEVEN_API_KEY"]
-st.title(elevenlabs_api_key)
 # —————————————————————————
 # AssemblyAI Helpers (optional fallback)
 # —————————————————————————
@@ -74,7 +73,7 @@ from io import BytesIO
 
 # Initialize ElevenLabs client once
 elevenlabs = ElevenLabs(
-    api_key=os.getenv("ELEVENLABS_API_KEY")
+    api_key = elevenlabs_api_key
 )
 
 def transcribe_audio_bytes_elevenlabs(audio_bytes):
