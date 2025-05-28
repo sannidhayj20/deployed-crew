@@ -29,7 +29,7 @@ if openai_api_key:
     os.environ["OPENAI_API_KEY"] = openai_api_key
 
 
-os.environ["ELEVEN_API_KEY"] =  = st.secrets("ELEVEN_API_KEY")
+os.environ["ELEVEN_API_KEY"] = st.secrets("ELEVEN_API_KEY")
 
 # ————————————————————————————
 # Gemini Validator
