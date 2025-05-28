@@ -18,3 +18,4 @@ scipy
 sounddevice
 gTTS
 google-generativeai
+pysqlite3-binary
