@@ -6,10 +6,12 @@ import os
 import io
 import json
 import time
-import requests
+import tempfile
 import streamlit as st
 import google.generativeai as genai
 from crew import BuildingAMultiAgentFinanceAssistantWithVoiceInteractionCrew
+from elevenlabs import Recording, transcribe
+from gtts import gTTS
 
 # Page config
 st.set_page_config(page_title="🎹 Global Finance Assistant", page_icon="🎹", layout="wide")
@@ -20,53 +22,20 @@ st.markdown("Speak or type your financial query — get a spoken response.")
 st.sidebar.header("🔧 Settings")
 openai_api_key = st.sidebar.text_input("🔑 OpenAI API Key", type="password")
 gemini_api_key = st.sidebar.text_input("🔮 Gemini API Key", type="password")
-assemblyai_api_key = st.sidebar.text_input("🗣️ AssemblyAI API Key", type="password")
 record_query = st.sidebar.checkbox("🎤 Record voice input instead of typing?")
 voice_enabled = st.sidebar.checkbox("🔊 Enable voice output", value=True)
 
 if openai_api_key:
     os.environ["OPENAI_API_KEY"] = openai_api_key
 
-# —————————————————————————
-# AssemblyAI Helpers
-# —————————————————————————
-def upload_audio(audio_bytes, api_key):
-    headers = {
-        "authorization": api_key,
-        "transfer-encoding": "chunked"
-    }
-    response = requests.post("https://api.assemblyai.com/v2/upload", headers=headers, data=audio_bytes)
-    response.raise_for_status()
-    return response.json()["upload_url"]
+# Use ElevenLabs key from secrets
+elevenlabs_api_key = st.secrets["elevenlabs"]["api_key"]
+os.environ["ELEVEN_API_KEY"] = elevenlabs_api_key
 
-def request_transcription(upload_url, api_key):
-    headers = {"authorization": api_key, "content-type": "application/json"}
-    data = {"audio_url": upload_url, "language_code": "en_us"}
-    response = requests.post("https://api.assemblyai.com/v2/transcript", headers=headers, json=data)
-    response.raise_for_status()
-    return response.json()["id"]
-
-def get_transcription_result(transcript_id, api_key):
-    headers = {"authorization": api_key}
-    polling_url = f"https://api.assemblyai.com/v2/transcript/{transcript_id}"
-    while True:
-        response = requests.get(polling_url, headers=headers)
-        response.raise_for_status()
-        data = response.json()
-        if data["status"] == "completed":
-            return data["text"]
-        elif data["status"] == "error":
-            raise RuntimeError(f"Transcription error: {data['error']}")
-        time.sleep(2)
-
-def transcribe_audio_bytes(audio_bytes, api_key):
-    upload_url = upload_audio(audio_bytes, api_key)
-    transcript_id = request_transcription(upload_url, api_key)
-    return get_transcription_result(transcript_id, api_key)
-
-# —————————————————————————
+# ————————————————————————————
 # Gemini Validator
-# —————————————————————————
+# ————————————————————————————
+
 def is_query_valid(query, gemini_key):
     genai.configure(api_key=gemini_key)
     model = genai.GenerativeModel("gemini-1.5-flash")
@@ -88,32 +57,51 @@ def is_query_valid(query, gemini_key):
     except Exception as e:
         return {"is_finance": False, "is_ethical": False, "reason": f"Validation failed: {e}"}
 
-# —————————————————————————
+# ————————————————————————————
+# ElevenLabs Recording & Transcription
+# ————————————————————————————
+
+def record_with_elevenlabs():
+    st.markdown("### 🎤 Record live query (via ElevenLabs)")
+    if st.button("⏺️ Start Recording"):
+        with st.spinner("Recording for 10 seconds..."):
+            audio_bytes = Recording.start(duration=10)
+            return audio_bytes
+
+
+def transcribe_with_elevenlabs(audio_bytes):
+    try:
+        with tempfile.NamedTemporaryFile(delete=False, suffix=".mp3") as tmp_file:
+            tmp_file.write(audio_bytes)
+            tmp_file.flush()
+            transcript = transcribe(tmp_file.name)
+            return transcript.text
+    except Exception as e:
+        st.error(f"Transcription failed: {e}")
+        return ""
+
+# ————————————————————————————
 # Main Input Section
-# —————————————————————————
+# ————————————————————————————
+
 user_query = ""
 
 if record_query:
-    st.markdown("### 🎤 Upload or record your voice query")
-    audio_file = st.file_uploader("Upload or record audio (.wav)", type=["wav"])
-    if audio_file is not None:
-        audio_bytes = audio_file.read()
-        st.audio(audio_bytes, format="audio/wav")
-    
-        if st.button("📝 Transcribe Audio"):
-            if not assemblyai_api_key:
-                st.error("AssemblyAI API key is missing.")
-            else:
-                with st.spinner("Transcribing audio..."):
-                    try:
-                        user_query = transcribe_audio_bytes(audio_bytes, assemblyai_api_key)
-                        st.markdown(f"📝 **Transcribed Query**: `{user_query}`")
-                    except Exception as e:
-                        st.error(f"Transcription failed: {e}")
+    audio = record_with_elevenlabs()
 
-# —————————————————————————
+    if audio:
+        st.audio(audio, format="audio/mp3")
+        if st.button("📝 Transcribe Audio"):
+            with st.spinner("Transcribing..."):
+                user_query = transcribe_with_elevenlabs(audio)
+                st.markdown(f"📝 **Transcribed Query**: `{user_query}`")
+else:
+    user_query = st.text_input("Enter your financial query")
+
+# ————————————————————————————
 # Process Input and Run Crew
-# —————————————————————————
+# ————————————————————————————
+
 if st.button("🚀 Get Market Brief"):
     if not user_query.strip():
         st.error("Please enter or record a valid query.")
@@ -123,7 +111,7 @@ if st.button("🚀 Get Market Brief"):
     validation = is_query_valid(user_query, gemini_api_key)
 
     if not validation["is_finance"]:
-        st.error("🛑 Not a finance-related query.")
+        st.error("🚩 Not a finance-related query.")
         st.markdown(f"🔎 Reason: {validation['reason']}")
         st.stop()
 
@@ -142,7 +130,6 @@ if st.button("🚀 Get Market Brief"):
     if voice_enabled:
         st.markdown("### 🔊 Voice Output")
         try:
-            from gtts import gTTS
             tts = gTTS(text=result, lang="en")
             audio_io = io.BytesIO()
             tts.write_to_fp(audio_io)
