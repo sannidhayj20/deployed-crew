@@ -1,11 +1,12 @@
 import os
 import io
 import json
-import whisper
+import time
+import requests
 import streamlit as st
 from streamlit_webrtc import webrtc_streamer
+
 import numpy as np
-import resampy
 import soundfile as sf
 import google.generativeai as genai
 from building_a_multi_agent_finance_assistant_with_voice_interaction.crew import BuildingAMultiAgentFinanceAssistantWithVoiceInteractionCrew
@@ -23,33 +24,60 @@ st.markdown("Speak or type your financial query — get a spoken response.")
 st.sidebar.header("🔧 Settings")
 openai_api_key = st.sidebar.text_input("🔑 OpenAI API Key", type="password")
 gemini_api_key = st.sidebar.text_input("🔮 Gemini API Key", type="password")
+assemblyai_api_key = st.sidebar.text_input("🗣️ AssemblyAI API Key", type="password")
 record_query = st.sidebar.checkbox("🎤 Record voice input instead of typing?")
 voice_enabled = st.sidebar.checkbox("🔊 Enable voice output", value=True)
 
-# Set env for OpenAI key if provided
 if openai_api_key:
     os.environ["OPENAI_API_KEY"] = openai_api_key
 
 # —————————————————————————
-# Whisper model (load once)
+# AssemblyAI Transcription Helpers
 # —————————————————————————
 
-def load_whisper_model():
-    return whisper.load_model("small")
+def upload_audio(audio_bytes, api_key):
+    headers = {
+        "authorization": api_key,
+        "transfer-encoding": "chunked"
+    }
+    response = requests.post("https://api.assemblyai.com/v2/upload", headers=headers, data=audio_bytes)
+    response.raise_for_status()
+    return response.json()["upload_url"]
 
-model = load_whisper_model()
+def request_transcription(upload_url, api_key):
+    json_data = {
+        "audio_url": upload_url,
+        "language_code": "en_us"
+    }
+    headers = {
+        "authorization": api_key,
+        "content-type": "application/json"
+    }
+    response = requests.post("https://api.assemblyai.com/v2/transcript", headers=headers, json=json_data)
+    response.raise_for_status()
+    return response.json()["id"]
 
-# —————————————————————————
-# Audio Processing Functions
-# —————————————————————————
-def transcribe_audio_bytes(audio_bytes: bytes) -> str:
-    audio_data, sample_rate = sf.read(io.BytesIO(audio_bytes), dtype="float32")
-    if len(audio_data.shape) > 1:
-        audio_data = np.mean(audio_data, axis=1)
-    if sample_rate != 16000:
-        audio_data = resampy.resample(audio_data, sample_rate, 16000)
-    result = model.transcribe(audio_data, language="en", fp16=False)
-    return result.get("text", "").strip()
+def get_transcription_result(transcript_id, api_key):
+    headers = {
+        "authorization": api_key,
+    }
+    polling_endpoint = f"https://api.assemblyai.com/v2/transcript/{transcript_id}"
+    while True:
+        response = requests.get(polling_endpoint, headers=headers)
+        response.raise_for_status()
+        data = response.json()
+        if data["status"] == "completed":
+            return data["text"]
+        elif data["status"] == "error":
+            raise RuntimeError(f"Transcription failed: {data['error']}")
+        else:
+            time.sleep(2)
+
+def transcribe_audio_bytes(audio_bytes, api_key):
+    upload_url = upload_audio(audio_bytes, api_key)
+    transcript_id = request_transcription(upload_url, api_key)
+    transcript_text = get_transcription_result(transcript_id, api_key)
+    return transcript_text
 
 # —————————————————————————
 # Gemini Validator
@@ -117,12 +145,17 @@ if record_query:
 
     if st.button("🛑 Stop and Transcribe"):
         if audio_buffer:
-            with st.spinner("Transcribing audio..."):
-                user_query = transcribe_audio_bytes(audio_buffer)
-            st.markdown(f"📝 Transcribed Query: `{user_query}`")
+            if not assemblyai_api_key:
+                st.error("Please enter your AssemblyAI API key in the sidebar.")
+            else:
+                with st.spinner("Transcribing audio with AssemblyAI..."):
+                    try:
+                        user_query = transcribe_audio_bytes(audio_buffer, assemblyai_api_key)
+                        st.markdown(f"📝 Transcribed Query: `{user_query}`")
+                    except Exception as e:
+                        st.error(f"Transcription failed: {e}")
         else:
             st.warning("No audio recorded yet. Please speak into your microphone.")
-
 else:
     user_query = st.text_area(
         "💬 Enter your financial query:",
