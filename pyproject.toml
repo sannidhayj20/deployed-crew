@@ -1,0 +1,44 @@
+[project]
+name = "building_a_multi_agent_finance_assistant_with_voice_interaction"
+version = "0.1.0"
+description = "building_a_multi_agent_finance_assistant_with_voice_interaction using crewAI"
+authors = [{ name = "Your Name", email = "you@example.com" }]
+requires-python = ">=3.10,<3.13"
+dependencies = [
+    "crewai[tools]",
+    "yfinance",
+    "langchain",
+    "langchain-community",
+    "langchain-openai",
+    "chromadb",
+    "openai",
+    "tiktoken",
+    "beautifulsoup4",
+    "requests",
+    "python-dotenv",
+    "streamlit",
+    "langchain-text-splitters",
+    "sounddevice",
+    "scipy",
+    "pydub",
+    "openai-whisper",
+    "piper",
+    "soundfile",
+    "resampy",
+    "google-generativeai",
+    "gTTS"
+]
+
+[project.scripts]
+building_a_multi_agent_finance_assistant_with_voice_interaction = "building_a_multi_agent_finance_assistant_with_voice_interaction.main:run"
+run_crew = "building_a_multi_agent_finance_assistant_with_voice_interaction.main:run"
+train = "building_a_multi_agent_finance_assistant_with_voice_interaction.main:train"
+replay = "building_a_multi_agent_finance_assistant_with_voice_interaction.main:replay"
+test = "building_a_multi_agent_finance_assistant_with_voice_interaction.main:test"
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.crewai]
+type = "crew"

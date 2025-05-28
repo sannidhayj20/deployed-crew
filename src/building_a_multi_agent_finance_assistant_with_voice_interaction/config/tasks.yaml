@@ -1,0 +1,78 @@
+check_prompt_task:
+  description: >
+    Evaluate the following user query for clarity and actionable content:
+    "{query}"
+    
+    Check if the query is understandable and fits into the Morning Market Brief use case.
+    Also check for similarity to previously indexed prompts in the vector store.
+    Your final answer MUST be:
+    - A confidence score (0-1)
+    - A boolean flag: "route_to_data_agents" based on similarity threshold (0.7+)
+  agent: confidence_checker
+  expected_output: >
+    {"confidence": 0.92, "route_to_data_agents": true}
+
+retrieve_existing_knowledge_task:
+  description: >
+    Using the user's query:
+    "{query}"
+    
+    Retrieve the most relevant previously indexed information (if any).
+    Return top 3 semantically similar data chunks with brief summary.
+  agent: retriever
+  expected_output: >
+    A JSON list of top 3 documents with title, summary, and similarity score.
+
+market_data_task:
+  description: >
+    Using the user query:
+    "{query}"
+    
+    Identify the companies, tickers, or sectors mentioned.
+    Fetch latest market allocation, price, and EPS data using Yahoo Finance or AlphaVantage.
+  agent: market_data_researcher
+  expected_output: >
+    JSON object with ticker, allocation %, price change, and EPS estimates.
+
+filing_scrape_task:
+  description: >
+    Based on the query:
+    "{query}"
+    
+    Search for latest earnings reports or filings for the companies mentioned.
+    Parse key highlights (EPS beat/miss, revenue guidance, commentary).
+  agent: filing_scraper
+  expected_output: >
+    Summary of the latest financial disclosures with EPS % delta and tone.
+
+quant_analysis_task:
+  description: >
+    Analyze:
+    - Risk exposure based on latest allocation and historical %
+    - Earnings surprise based on expected vs actual EPS
+    - Sentiment tone
+    
+    Input query:
+    "{query}"
+  agent: quant_analyst
+  expected_output: >
+    Bullet points summarizing risk exposure, surprises, and market sentiment
+
+narrate_market_brief_task:
+  description: >
+    Using insights derived from prior agents and the query:
+    "{query}"
+    
+    Write a 3-paragraph spoken report in the style of a financial newsletter.
+  agent: language_narrator
+  expected_output: >
+    A polished, confident narrative in markdown format ready for text-to-speech.
+
+broadcast_brief_task:
+  description: >
+    Convert this into a proper and detailed market brief into spoken voice using a confident, polished male voice.
+    Inject financial jargon where appropriate. Use the final narrative from LLM:
+    "{query}"
+  agent: voice_financier
+  expected_output: >
+    A polished,3 para Long and detailed and confident report type narrative in markdown format ready for text-to-speech

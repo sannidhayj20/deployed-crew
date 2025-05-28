@@ -1,0 +1,26 @@
+# User Preferences for Morning Market Brief
+
+# Preferred regions or markets
+regions=Asia, Europe, North America
+
+# Sector focus (comma-separated)
+sectors=Technology, Financials, Energy
+
+
+# Voice tone: authoritative | conversational | neutral
+voice_tone=authoritative
+
+# Summary style: narrative | bullet | hybrid
+summary_style=narrative
+
+# Preferred output format
+output_format=spoken
+
+# Query frequency (for future scheduling support)
+daily_brief_time=08:00
+
+# Language
+language=en
+
+# Risk sensitivity: high | medium | low
+risk_tolerance=medium
