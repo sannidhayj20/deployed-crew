@@ -3,8 +3,7 @@
 from crewai import Agent, Crew, Process, Task
 from crewai.project import CrewBase, agent, task, crew
 from crewai_tools import SerperDevTool, ScrapeWebsiteTool,WebsiteSearchTool
-from building_a_multi_agent_finance_assistant_with_voice_interaction.tools.search import SearchTools
-from building_a_multi_agent_finance_assistant_with_voice_interaction.tools.custom_tool import ConfidenceCheckerTool,MarketDataResearcherTool,FilingScraperTool,RetrieverTool,QuantitativeAnalystTool,LanguageNarratorTool,VoiceBroadcasterTool
+from tools.custom_tool import ConfidenceCheckerTool,MarketDataResearcherTool,FilingScraperTool,RetrieverTool,QuantitativeAnalystTool,LanguageNarratorTool,VoiceBroadcasterTool
 import os
 os.environ["OPENAI_API_KEY"] = os.getenv("OPENAI_API_KEY")
 
