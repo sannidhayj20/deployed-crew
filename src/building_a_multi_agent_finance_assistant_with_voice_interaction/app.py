@@ -67,21 +67,28 @@ def transcribe_audio_bytes_assemblyai(audio_bytes, api_key):
     transcript_id = request_transcription(upload_url, api_key)
     return get_transcription_result(transcript_id, api_key)
 
-# —————————————————————————
-# ElevenLabs Speech-to-Text helper
-# —————————————————————————
+
+
+from elevenlabs.client import ElevenLabs
+from io import BytesIO
+
+# Initialize ElevenLabs client once
+elevenlabs = ElevenLabs(
+    api_key=os.getenv("ELEVENLABS_API_KEY")
+)
 
 def transcribe_audio_bytes_elevenlabs(audio_bytes):
-    if not elevenlabs_api_key:
-        raise RuntimeError("ElevenLabs API key not configured in secrets.")
-    url = "https://api.elevenlabs.io/v1/speech-to-text"
-    headers = {
-        "xi-api-key": elevenlabs_api_key,
-        "Content-Type": "audio/wav",
-    }
-    response = requests.post(url, headers=headers, data=audio_bytes)
-    response.raise_for_status()
-    return response.json().get("text", "")
+    try:
+        transcription = elevenlabs.speech_to_text.convert(
+            file=BytesIO(audio_bytes),
+            model_id="scribe_v1",
+            tag_audio_events=True,
+            language_code="eng",
+            diarize=True,
+        )
+        return transcription.text
+    except Exception as e:
+        raise RuntimeError(f"ElevenLabs transcription error: {e}")
 
 
 # —————————————————————————
