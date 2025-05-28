@@ -136,14 +136,10 @@ user_query = ""
 
 if record_query:
     st.markdown("### 🎤 Live Voice Input (Streamlit WebRTC)")
-    webrtc_ctx = webrtc_streamer(
-        key="audio-recorder",
-        audio_receiver_size=1024,
-        in_audio_track=True,
-        media_stream_constraints={"audio": True, "video": False},
-        audio_frame_callback=audio_frame_callback,
-        async_processing=False,
-    )
+    webrtc_streamer(
+    key="audio-recorder",
+    audio_receiver_size=1024,
+    audio=True)
 
     if st.button("🛑 Stop and Transcribe"):
         if audio_buffer:
