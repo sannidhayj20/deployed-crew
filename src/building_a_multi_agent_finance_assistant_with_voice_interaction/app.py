@@ -4,7 +4,6 @@ import json
 import time
 import requests
 import streamlit as st
-from st_audio_recorder import audio_recorder
 import google.generativeai as genai
 from crew import BuildingAMultiAgentFinanceAssistantWithVoiceInteractionCrew
 
