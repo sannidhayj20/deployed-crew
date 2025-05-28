@@ -1,3 +1,6 @@
+import sys
+import pysqlite3
+sys.modules["sqlite3"] = pysqlite3
 import os
 import io
 import json
@@ -6,9 +9,7 @@ import requests
 import streamlit as st
 import google.generativeai as genai
 from crew import BuildingAMultiAgentFinanceAssistantWithVoiceInteractionCrew
-import sys
-import pysqlite3
-sys.modules["sqlite3"] = pysqlite3
+
 # Page config
 st.set_page_config(page_title="🎹 Global Finance Assistant", page_icon="🎹", layout="wide")
 st.title("🎹 Morning Market Brief Assistant")
