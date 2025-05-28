@@ -5,7 +5,9 @@ import time
 import requests
 import streamlit as st
 from streamlit_webrtc import webrtc_streamer
-
+import sys
+import pysqlite3
+sys.modules["sqlite3"] = pysqlite3
 import numpy as np
 import soundfile as sf
 import google.generativeai as genai
