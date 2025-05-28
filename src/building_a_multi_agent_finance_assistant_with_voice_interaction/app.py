@@ -134,6 +134,8 @@ def audio_frame_callback(frame):
 
 user_query = ""
 
+from streamlit_webrtc import webrtc_streamer, WebRtcMode
+
 if record_query:
     st.markdown("### 🎤 Live Voice Input (Streamlit WebRTC)")
     webrtc_streamer(
