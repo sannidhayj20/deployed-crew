@@ -29,7 +29,7 @@ if openai_api_key:
 
 # ElevenLabs API key from secrets (NO user input)
 elevenlabs_api_key = st.secrets["ELEVEN_API_KEY"]
-
+st.title(elevenlabs_api_key)
 # —————————————————————————
 # AssemblyAI Helpers (optional fallback)
 # —————————————————————————
