@@ -70,6 +70,7 @@ def transcribe_audio_bytes_assemblyai(audio_bytes, api_key):
 # —————————————————————————
 # ElevenLabs Speech-to-Text helper
 # —————————————————————————
+
 def transcribe_audio_bytes_elevenlabs(audio_bytes):
     if not elevenlabs_api_key:
         raise RuntimeError("ElevenLabs API key not configured in secrets.")
@@ -81,6 +82,7 @@ def transcribe_audio_bytes_elevenlabs(audio_bytes):
     response = requests.post(url, headers=headers, data=audio_bytes)
     response.raise_for_status()
     return response.json().get("text", "")
+
 
 # —————————————————————————
 # Gemini Validator
