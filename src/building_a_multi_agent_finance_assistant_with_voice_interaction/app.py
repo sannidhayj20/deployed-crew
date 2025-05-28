@@ -130,14 +130,13 @@ if st.button("🚀 Get Market Brief"):
     st.info("🤖 Running multi-agent finance assistant...")
     crew = BuildingAMultiAgentFinanceAssistantWithVoiceInteractionCrew()
     result = crew.crew().kickoff(inputs={"query": user_query})
-
     st.markdown("## 📊 Market Brief Result")
-    st.markdown(result)
+    st.markdown(str(result))  # Safely display result
 
     if voice_enabled:
         st.markdown("### 🔊 Voice Output")
         try:
-            tts = gTTS(text=result, lang="en")
+            tts = gTTS(text=str(result), lang="en")  # Ensure result is string
             audio_io = io.BytesIO()
             tts.write_to_fp(audio_io)
             audio_io.seek(0)
