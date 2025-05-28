@@ -90,28 +90,31 @@ def is_query_valid(query, gemini_key):
 # —————————————————————————
 user_query = ""
 
-if record_query:
-    st.markdown("### 🎤 Record Your Voice Query")
-    audio_bytes = audio_recorder(text="Click to record", icon_size="2x")
+from audiorecorder import audiorecorder
+from pydub import AudioSegment
 
-    if audio_bytes and st.button("🛑 Transcribe Audio"):
+st.markdown("### 🎤 Record your voice query")
+
+audio = audiorecorder("Click to record", "Click to stop recording")
+
+if len(audio) > 0:
+    st.audio(audio.export().read(), format="audio/wav")
+
+    audio.export("audio.wav", format="wav")
+    st.success("✅ Audio recorded and saved.")
+
+    if st.button("📝 Transcribe Audio"):
         if not assemblyai_api_key:
-            st.error("Please enter your AssemblyAI API key.")
+            st.error("AssemblyAI API key is missing.")
         else:
-            with st.spinner("Transcribing with AssemblyAI..."):
+            with st.spinner("Transcribing audio..."):
                 try:
+                    with open("audio.wav", "rb") as f:
+                        audio_bytes = f.read()
                     user_query = transcribe_audio_bytes(audio_bytes, assemblyai_api_key)
-                    st.success("✅ Transcription complete!")
                     st.markdown(f"📝 **Transcribed Query**: `{user_query}`")
                 except Exception as e:
                     st.error(f"Transcription failed: {e}")
-else:
-    user_query = st.text_area(
-        "💬 Enter your financial query:",
-        placeholder="e.g., What’s our risk exposure in Asia tech stocks today?",
-        height=150,
-    )
-
 # —————————————————————————
 # Process Input and Run Crew
 # —————————————————————————
