@@ -14,10 +14,11 @@ langchain-text-splitters
 sounddevice
 scipy
 pydub
-openai-whisper
+openai-whisper==20230314
 piper
 soundfile
 resampy
 google-generativeai
 gtts
 streamlit-webrtc
+setuptools<81
