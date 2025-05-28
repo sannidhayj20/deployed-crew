@@ -20,3 +20,4 @@ gTTS
 google-generativeai
 pysqlite3-binary
 pydub
+streamlit_audio_recorder
