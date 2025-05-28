@@ -22,9 +22,7 @@ if "user_query" not in st.session_state:
 
 # Sidebar
 st.sidebar.header("🔧 Settings")
-openai_api_key = st.sidebar.text_input("🔑 OpenAI API Key", type="password")
-gemini_api_key = st.sidebar.text_input("🔮 Gemini API Key", type="password")
-assemblyai_api_key = st.sidebar.text_input("🗣️ AssemblyAI API Key (optional)", type="password")
+
 record_query = st.sidebar.checkbox("🎤 Record voice input instead of typing?")
 voice_enabled = st.sidebar.checkbox("🔊 Enable voice output", value=True)
 
