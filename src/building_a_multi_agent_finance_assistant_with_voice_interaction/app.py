@@ -16,6 +16,10 @@ st.set_page_config(page_title="🎹 Global Finance Assistant", page_icon="🎹",
 st.title("🎹 Morning Market Brief Assistant")
 st.markdown("Speak or type your financial query — get a spoken response.")
 
+# Session state setup
+if "user_query" not in st.session_state:
+    st.session_state.user_query = ""
+
 # Sidebar
 st.sidebar.header("🔧 Settings")
 openai_api_key = st.sidebar.text_input("🔑 OpenAI API Key", type="password")
@@ -29,6 +33,7 @@ if openai_api_key:
 
 # ElevenLabs API key from secrets (NO user input)
 elevenlabs_api_key = st.secrets["ELEVEN_API_KEY"]
+
 # —————————————————————————
 # AssemblyAI Helpers (optional fallback)
 # —————————————————————————
@@ -66,15 +71,13 @@ def transcribe_audio_bytes_assemblyai(audio_bytes, api_key):
     transcript_id = request_transcription(upload_url, api_key)
     return get_transcription_result(transcript_id, api_key)
 
-
-
+# —————————————————————————
+# ElevenLabs Transcription
+# —————————————————————————
 from elevenlabs.client import ElevenLabs
 from io import BytesIO
 
-# Initialize ElevenLabs client once
-elevenlabs = ElevenLabs(
-    api_key = elevenlabs_api_key
-)
+elevenlabs = ElevenLabs(api_key=elevenlabs_api_key)
 
 def transcribe_audio_bytes_elevenlabs(audio_bytes):
     try:
@@ -88,7 +91,6 @@ def transcribe_audio_bytes_elevenlabs(audio_bytes):
         return transcription.text
     except Exception as e:
         raise RuntimeError(f"ElevenLabs transcription error: {e}")
-
 
 # —————————————————————————
 # Gemini Validator
@@ -117,8 +119,6 @@ def is_query_valid(query, gemini_key):
 # —————————————————————————
 # Main Input Section
 # —————————————————————————
-user_query = ""
-
 if record_query:
     from audiorecorder import audiorecorder
 
@@ -131,27 +131,27 @@ if record_query:
 
         if st.button("📝 Transcribe Audio"):
             try:
-                # Prefer ElevenLabs STT if key present, else fallback to AssemblyAI if key provided
                 if elevenlabs_api_key:
-                    user_query = transcribe_audio_bytes_elevenlabs(audio_bytes)
+                    st.session_state.user_query = transcribe_audio_bytes_elevenlabs(audio_bytes)
                 elif assemblyai_api_key:
-                    user_query = transcribe_audio_bytes_assemblyai(audio_bytes, assemblyai_api_key)
+                    st.session_state.user_query = transcribe_audio_bytes_assemblyai(audio_bytes, assemblyai_api_key)
                 else:
                     st.error("No transcription API key configured.")
-                    user_query = ""
-                if user_query:
-                    st.markdown(f"📝 **Transcribed Query**: `{user_query}`")
+                    st.session_state.user_query = ""
+                if st.session_state.user_query:
+                    st.markdown(f"📝 **Transcribed Query**: `{st.session_state.user_query}`")
                 else:
                     st.error("Transcription returned empty text.")
             except Exception as e:
                 st.error(f"Transcription failed: {e}")
 else:
-    user_query = st.text_input("Enter your financial query")
+    st.session_state.user_query = st.text_input("Enter your financial query", value=st.session_state.user_query)
 
 # —————————————————————————
 # Process Input and Run Crew
 # —————————————————————————
 if st.button("🚀 Get Market Brief"):
+    user_query = st.session_state.user_query
     if not user_query.strip():
         st.error("Please enter or record a valid query.")
         st.stop()
