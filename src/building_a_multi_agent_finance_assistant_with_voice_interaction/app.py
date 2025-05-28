@@ -6,7 +6,7 @@ import requests
 import streamlit as st
 import numpy as np
 import av
-from pydub import AudioSegment
+from pydub import AudioSegmen
 from streamlit_webrtc import webrtc_streamer, WebRtcMode
 import google.generativeai as genai
 from crew import BuildingAMultiAgentFinanceAssistantWithVoiceInteractionCrew
