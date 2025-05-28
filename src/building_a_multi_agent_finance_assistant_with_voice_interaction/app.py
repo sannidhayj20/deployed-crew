@@ -9,7 +9,7 @@ from streamlit_webrtc import webrtc_streamer
 import numpy as np
 import soundfile as sf
 import google.generativeai as genai
-from building_a_multi_agent_finance_assistant_with_voice_interaction.crew import BuildingAMultiAgentFinanceAssistantWithVoiceInteractionCrew
+from crew import BuildingAMultiAgentFinanceAssistantWithVoiceInteractionCrew
 
 # —————————————————————————
 # Streamlit UI Setup
