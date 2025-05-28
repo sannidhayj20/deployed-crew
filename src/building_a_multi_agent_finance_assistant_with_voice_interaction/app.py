@@ -94,20 +94,12 @@ def is_query_valid(query, gemini_key):
 user_query = ""
 
 if record_query:
-    from audiorecorder import audiorecorder
-    from pydub import AudioSegment
-
-    st.markdown("### 🎤 Record your voice query")
-    audio = audiorecorder("Click to record", "Click to stop recording")
-
-    if len(audio) > 0:
-        # Export audio to in-memory buffer as WAV
-        audio_buffer = io.BytesIO()
-        audio.export(audio_buffer, format="wav")
-        audio_bytes = audio_buffer.getvalue()
-
+    st.markdown("### 🎤 Upload or record your voice query")
+    audio_file = st.file_uploader("Upload or record audio (.wav)", type=["wav"])
+    if audio_file is not None:
+        audio_bytes = audio_file.read()
         st.audio(audio_bytes, format="audio/wav")
-
+    
         if st.button("📝 Transcribe Audio"):
             if not assemblyai_api_key:
                 st.error("AssemblyAI API key is missing.")
@@ -118,8 +110,6 @@ if record_query:
                         st.markdown(f"📝 **Transcribed Query**: `{user_query}`")
                     except Exception as e:
                         st.error(f"Transcription failed: {e}")
-else:
-    user_query = st.text_input("Enter your financial query")
 
 # —————————————————————————
 # Process Input and Run Crew
