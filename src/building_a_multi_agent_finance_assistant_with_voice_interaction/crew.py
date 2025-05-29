@@ -20,54 +20,40 @@ os.environ["OPENAI_API_KEY"] = os.getenv("OPENAI_API_KEY")
 class BuildingAMultiAgentFinanceAssistantWithVoiceInteractionCrew:
 
     def print_output(self, output: TaskOutput):
+        import json
+
         if "chat_history" not in st.session_state:
             st.session_state.chat_history = []
 
-        # Format response safely
         clean_message = output.raw
         if not isinstance(clean_message, str):
             try:
-                import json
                 clean_message = json.dumps(clean_message, indent=2)
             except Exception:
                 clean_message = str(clean_message)
 
-        # Save chat
         st.session_state.chat_history.append({
             "agent": str(output.agent),
             "message": clean_message
         })
 
-        # Create placeholder if not exists
         if "chat_placeholder" not in st.session_state:
             st.session_state.chat_placeholder = st.empty()
 
         with st.session_state.chat_placeholder.container():
-            # Build HTML
-            chat_blocks = ""
-            for chat in st.session_state.chat_history:
-                chat_blocks += f"""
-                <div style="border: 1px solid #ccc; border-radius: 10px; padding: 1rem; margin: 1rem 0;
-                            background-color: #e8f5e9; box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);">
-                    <div style="font-weight: bold; margin-bottom: 0.5rem; color: #2e7d32;">
-                        🧠 <span>{chat['agent']}</span>
-                    </div>
-                    <div style="white-space: pre-wrap; line-height: 1.6; color: #1b1b1b;">
-                        {chat['message']}
-                    </div>
-                </div>
-                """
-
-            # Wrap in collapsible
-            final_html = f"""
-            <details style="margin-top: 1rem;" open>
-                <summary style="font-size: 1.2rem; font-weight: bold; cursor: pointer;">📁 Chat History</summary>
-                {chat_blocks}
-            </details>
-            """
-
-            # Render
-            st.markdown(final_html, unsafe_allow_html=True)
+            with st.expander("📁 Chat History", expanded=True):
+                for chat in st.session_state.chat_history:
+                    st.markdown(f"""
+                        <div style="border: 1px solid #ccc; border-radius: 10px; padding: 1rem; margin: 1rem 0;
+                                    background-color: #e8f5e9; box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);">
+                            <div style="font-weight: bold; margin-bottom: 0.5rem; color: #2e7d32;">
+                                🧠 <span>{chat['agent']}</span>
+                            </div>
+                            <div style="white-space: pre-wrap; line-height: 1.6; color: #1b1b1b;">
+                                {chat['message']}
+                            </div>
+                        </div>
+                    """, unsafe_allow_html=True)
     @agent
     def confidence_checker(self) -> Agent:
         return Agent(
