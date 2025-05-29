@@ -1,57 +1,38 @@
+# 💵 Global Finance Assistant – Technical Documentation
 
-\documentclass{article}
-\usepackage[a4paper, margin=1in]{geometry}
-\usepackage{hyperref}
-\usepackage{graphicx}
-\usepackage{xcolor}
-\usepackage{listings}
-\usepackage{titlesec}
-\usepackage{enumitem}
-\usepackage{fancyvrb}
+📌 A voice-enabled multi-agent assistant that delivers spoken market briefings based on user queries.  
+**Built with:** CrewAI, LangChain, OpenAI, ChromaDB, Streamlit  
 
-\titleformat{\section}{\large\bfseries}{\thesection}{1em}{}
-\titleformat{\subsection}{\normalsize\bfseries}{\thesubsection}{1em}{}
+🔗 [Live Demo](https://finance-research-crew.streamlit.app/)
 
-\definecolor{lightgray}{gray}{0.95}
-\lstset{
-  basicstyle=\ttfamily\small,
-  backgroundcolor=\color{lightgray},
-  frame=single,
-  breaklines=true
-}
+---
 
-\title{\textbf{\Huge💵 Global Finance Assistant – Technical Documentation}}
-\author{}
-\date{}
+## 🔊 Input Flow
 
-\begin{document}
-\maketitle
-
-\section*{Overview}
-A voice-enabled multi-agent assistant that delivers spoken market briefings based on user queries. \\
-\textbf{Built with:} CrewAI, LangChain, OpenAI, ChromaDB, Streamlit
-
-\noindent \href{https://finance-research-crew.streamlit.app/}{\textbf{🔗 Live Demo}}
-
-\section*{🔊 Input Flow}
 Users can provide input in two ways:
-\begin{itemize}
-  \item \textbf{Voice} – Recorded via \texttt{audiorecorder}, transcribed using \textbf{AssemblyAI API}
-  \item \textbf{Text} – Entered manually into the Streamlit text input field
-\end{itemize}
-Both types are unified into a single query string before moving to the next stage.
 
-\section*{🔍 Gemini-Based Query Validation}
-All inputs go through a Gemini-powered validation step to ensure:
-\begin{itemize}
-  \item The query is financially relevant
-  \item It is ethically appropriate
-  \item It has sufficient clarity and specificity
-\end{itemize}
+- **Voice**  
+  Recorded via `audiorecorder`, transcribed using **AssemblyAI API**
+- **Text**  
+  Entered manually into the Streamlit text input field
 
-\subsection*{Prompt Used}
-\begin{lstlisting}[language=json]
+> ✅ Both types are unified into a single query string before moving to the next stage.
+
+---
+
+## 🔍 Gemini-Based Query Validation
+
+All inputs go through a **Gemini-powered validation** step to ensure:
+
+- The query is financially relevant  
+- It is ethically appropriate  
+- It has sufficient clarity and specificity  
+
+### ✅ Prompt Used
+
+```json
 You are a compliance officer for a financial assistant.
+
 Evaluate the following query and respond ONLY with JSON like:
 {
   "is_finance": true,
@@ -63,59 +44,68 @@ Evaluate the following query and respond ONLY with JSON like:
     "Improved version of the query suggestion 2"
   ]
 }
+
 Query: {user_query}
-\end{lstlisting}
+```
 
-\textbf{If Not Valid:} If either \texttt{is\_finance == false} or \texttt{is\_ethical == false}, the assistant halts and:
-\begin{itemize}
-  \item Explains why the query was rejected
-  \item Offers up to 3 suggestions for improvement
-\end{itemize}
+### ⚠️ If Not Valid
+If `is_finance == false` or `is_ethical == false`, the assistant halts and:
 
-\section*{🧠 Multi-Agent Workflow Kickoff}
-Once validated, the query triggers the multi-agent finance crew, orchestrated by \textbf{CrewAI}.
+- Explains why the query was rejected
+- Offers up to 3 suggestions for improvement
 
-\subsection*{Agents Involved}
-\begin{itemize}
-  \item Confidence Checker – Validates prompt quality
-  \item Market Data Researcher – Gathers live market data
-  \item Filing Scraper – Extracts recent earnings reports
-  \item Retriever – Retrieves past insights from vector DB
-  \item Quantitative Analyst – Analyzes risk and EPS surprises
-  \item Language Narrator – Crafts Bloomberg-style narrative
-  \item Voice Financier – Converts briefing to audio
-\end{itemize}
+---
 
-\section*{🔄 Agent Prompts \& Tasks}
-\subsection*{1. Confidence Checker}
-\textbf{Purpose:} Ensure the query is clear, specific, and similar to indexed prompts.
+## 🧠 Multi-Agent Workflow Kickoff
+Once validated, the query triggers the multi-agent finance crew, orchestrated by CrewAI.
 
-\textbf{Prompt:}
-\begin{lstlisting}
+### Agents Involved
+| Agent | Task |
+|-------|------|
+| Confidence Checker | Validates prompt quality |
+| Market Data Researcher | Gathers live market data |
+| Filing Scraper | Extracts recent earnings reports |
+| Retriever | Retrieves past insights from vector DB |
+| Quantitative Analyst | Analyzes risk and EPS surprises |
+| Language Narrator | Crafts Bloomberg-style narrative |
+| Voice Financier | Converts briefing to audio |
+
+---
+
+## 🔄 Agent Prompts & Tasks
+
+### 1. Confidence Checker
+🎯 **Purpose:** Ensure the query is clear, specific, and similar to indexed prompts.
+
+🧩 **Prompt:**
+```text
 Rate this query on clarity and specificity (1-10):
 "{query}"
 Respond only with the number.
-\end{lstlisting}
+```
 
-\textbf{Output:}
-\begin{lstlisting}[language=json]
+📦 **Output:**
+```json
 {
   "confidence_score": 0.92,
   "similarity_score": 0.78,
   "route_to_data_agents": true,
   "suggestions": []
 }
-\end{lstlisting}
+```
 
-\subsection*{2. Market Data Researcher}
-\textbf{Prompt:}
-\begin{lstlisting}
+### 2. Market Data Researcher
+🎯 **Purpose:** Extract company names or tickers and fetch real-time data.
+
+🧩 **Prompt:**
+```text
 Extract company names or tickers related to this query:
 "{query}"
-\end{lstlisting}
+Respond only with comma-separated symbols or names.
+```
 
-\textbf{Output Example:}
-\begin{lstlisting}[language=json]
+📦 **Output Example:**
+```json
 [
   {
     "ticker": "AAPL",
@@ -126,17 +116,20 @@ Extract company names or tickers related to this query:
     "eps_trailing_12m": 5.82
   }
 ]
-\end{lstlisting}
+```
 
-\subsection*{3. Filing Scraper}
-\textbf{Prompt:}
-\begin{lstlisting}
+### 3. Filing Scraper
+🎯 **Purpose:** Scrape investor relations pages for recent filings or disclosures.
+
+🧩 **Prompt:**
+```text
 Extract company names or tickers related to this query:
 "{query}"
-\end{lstlisting}
+Respond only with comma-separated symbols or names.
+```
 
-\textbf{Output Example:}
-\begin{lstlisting}[language=json]
+📦 **Output Example:**
+```json
 [
   {
     "company": "AAPL",
@@ -144,13 +137,15 @@ Extract company names or tickers related to this query:
     "summary": "EPS came in at $5.82, outperforming analyst estimates by 8%. Volume was above average..."
   }
 ]
-\end{lstlisting}
+```
 
-\subsection*{4. Retriever}
-\textbf{Prompt:} Uses semantic search directly.
+### 4. Retriever
+🎯 **Purpose:** Retrieve semantically similar past insights from the knowledge base.
 
-\textbf{Output Example:}
-\begin{lstlisting}[language=json]
+🧩 **Prompt:** N/A (uses semantic search)
+
+📦 **Output Example:**
+```json
 [
   {
     "content": "Apple shares rose after Q2 earnings beat...",
@@ -161,11 +156,13 @@ Extract company names or tickers related to this query:
     "similarity": 0.78
   }
 ]
-\end{lstlisting}
+```
 
-\subsection*{5. Quantitative Analyst}
-\textbf{Prompt:}
-\begin{lstlisting}
+### 5. Quantitative Analyst
+🎯 **Purpose:** Analyze portfolio exposure, EPS surprise, and sentiment.
+
+🧩 **Prompt:**
+```text
 Given the following query:
 "{query}"
 
@@ -176,21 +173,23 @@ Analyze and summarize:
 - Regional sentiment
 
 Return structured JSON output.
-\end{lstlisting}
+```
 
-\textbf{Output Example:}
-\begin{lstlisting}[language=json]
+📦 **Output Example:**
+```json
 {
   "allocation_change": "+5%",
   "earnings_surprise": "+8%",
   "risk_exposure": "Moderate",
   "regional_sentiment": "Positive in APAC"
 }
-\end{lstlisting}
+```
 
-\subsection*{6. Language Narrator}
-\textbf{Prompt:}
-\begin{lstlisting}
+### 6. Language Narrator
+🎯 **Purpose:** Generate a spoken-style market brief.
+
+🧩 **Prompt:**
+```text
 Write a concise 3-paragraph spoken market briefing:
 Query: {query}
 
@@ -200,57 +199,62 @@ Include:
 - Sentiment summary
 
 Style: Confident, professional, Bloomberg-style tone.
-\end{lstlisting}
+```
 
-\textbf{Output Example:}
-\begin{quote}
-“Apple’s shares rose 1.25\% today, closing at \$194.25, following a strong Q2 earnings beat. EPS came in at \$5.82, outperforming analyst estimates by 8\%. Volume was above average at 98 million shares traded…”
-\end{quote}
+📦 **Output Example:**
+> "Apple's shares rose 1.25% today, closing at $194.25, following a strong Q2 earnings beat. EPS came in at $5.82, outperforming analyst estimates by 8%. Volume was above average at 98 million shares traded…"
 
-\subsection*{7. Voice Broadcaster}
-Acts as a wrapper around the TTS engine (gTTS / Piper).
+### 7. Voice Broadcaster
+🎯 **Purpose:** Convert final narrative into speech.
 
-\textbf{Output:}
-\begin{verbatim}
+🧩 **Prompt:** None – acts as wrapper around TTS engine (gTTS / Piper)
+
+📦 **Output Example:**
+```
 [AUDIO FILE GENERATED FROM TEXT]
-\end{verbatim}
+```
 
-\section*{🎙️ Final Output}
+---
+
+## 🎙️ Final Output
 After all agents complete their tasks:
-\begin{itemize}
-  \item The final briefing is displayed in the UI
-  \item An audio file is generated using gTTS or Piper
-  \item Users can listen to the briefing instantly
-\end{itemize}
 
-\section*{🛠️ Tech Stack}
-\begin{itemize}
-  \item \textbf{Agents:} CrewAI
-  \item \textbf{LLMs:} Gemini, OpenAI
-  \item \textbf{Tools:} yfinance, BeautifulSoup, ChromaDB
-  \item \textbf{UI:} Streamlit
-  \item \textbf{TTS:} gTTS / Piper
-  \item \textbf{Hosting:} Streamlit Community Cloud
-\end{itemize}
+- The final briefing is displayed in the UI
+- An audio file is generated using gTTS or Piper
+- Users can listen to the briefing instantly
 
-\section*{📈 Performance Benchmarks}
-\begin{tabular}{ll}
-\textbf{Task} & \textbf{Duration} \\
-Confidence Check & 1.2s \\
-Market Data Fetch & 3.5s \\
-Filing Scraping & 4.8s \\
-Quantitative Analysis & 2.1s \\
-Narrative Synthesis & 1.8s \\
-\textbf{Total Flow} & \textbf{~13.4s} (Sequential execution)
-\end{tabular}
+---
 
-\section*{📬 Contact \& Contributions}
-For questions, feature requests, or collaboration:
+## 🛠️ Tech Stack
+| Component | Tools/Tech Used |
+|-----------|----------------|
+| Agents | CrewAI |
+| LLMs | Gemini, OpenAI |
+| Tools | yfinance, BeautifulSoup, ChromaDB |
+| UI | Streamlit |
+| TTS | gTTS / Piper |
+| Hosting | Streamlit Community Cloud |
 
-\begin{itemize}
-  \item Email: \texttt{you@example.com}
-  \item Twitter: \href{https://twitter.com/yourhandle}{@yourhandle}
-  \item LinkedIn: \href{https://linkedin.com/in/yourprofile}{linkedin.com/in/yourprofile}
-\end{itemize}
+---
 
-\end{document}
+## 📈 Performance Benchmarks
+| Task | Duration |
+|------|----------|
+| Confidence Check | 1.2s |
+| Market Data Fetch | 3.5s |
+| Filing Scraping | 4.8s |
+| Quantitative Analysis | 2.1s |
+| Narrative Synthesis | 1.8s |
+| **Total Flow** | **~13.4s** |
+
+*Sequential execution*
+
+---
+
+## 📢 Live Demo
+🔗 [Try the App](https://finance-research-crew.streamlit.app/)
+
+Try it with:
+- Voice queries about Apple, Tesla, or global markets
+- Text input for regional or sector-specific questions
+- Get instant spoken market briefings!
