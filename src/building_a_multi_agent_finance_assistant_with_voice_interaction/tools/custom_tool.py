@@ -22,19 +22,20 @@ class MyCustomTool(BaseTool):
 
 
 from crewai.tools import BaseTool
-from typing import Type
+from typing import Type, Union, Any, Dict
 from pydantic import BaseModel, Field
-from langchain_community.vectorstores import Chroma
+from langchain_chroma import Chroma
 from langchain_openai import OpenAIEmbeddings, OpenAI
 import os
 import json
 
 CHROMA_PATH = "./chroma"
 OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
-os.environ["OPENAI_API_KEY"] = os.getenv("OPENAI_API_KEY")
+os.environ["OPENAI_API_KEY"] = OPENAI_API_KEY
+
 class ConfidenceCheckerInput(BaseModel):
-    """Input schema for ConfidenceChecker."""
     query: Union[str, Dict[str, Any]] = Field(..., description="User query about financial markets.")
+
 class ConfidenceCheckerTool(BaseTool):
     name: str = "confidence_and_similarity_check"
     description: str = (
@@ -43,7 +44,7 @@ class ConfidenceCheckerTool(BaseTool):
     args_schema: Type[BaseModel] = ConfidenceCheckerInput
 
     def _run(self, query: Union[str, Dict[str, Any]]) -> str:
-        # Load embeddings + FAISS
+        # Initialize embeddings and vector DB
         embeddings = OpenAIEmbeddings(openai_api_key=OPENAI_API_KEY)
         vectordb = Chroma(persist_directory=CHROMA_PATH, embedding_function=embeddings)
 
@@ -56,20 +57,37 @@ class ConfidenceCheckerTool(BaseTool):
         )
         try:
             llm_score = float(llm.invoke(eval_prompt).strip()) / 10.0
-        except:
+        except Exception:
             llm_score = 0.5
 
         # Similarity check
         results = vectordb.similarity_search_with_score(query, k=1)
         similarity_score = round(results[0][1], 2) if results else 0.0
 
+        # Decide routing
         route_to_data_agents = llm_score > 0.6 or similarity_score > 0.7
 
-        return json.dumps({
+        # Generate suggestions if confidence low
+        suggestions = []
+        if llm_score < 0.6:
+            suggestion_prompt = (
+                f"Suggest 3 ways to improve this user query to make it clearer and more specific:\n{query}\n"
+                "Respond with 3 short suggestions, separated by semicolons."
+            )
+            try:
+                suggestion_text = llm.invoke(suggestion_prompt).strip()
+                suggestions = [s.strip() for s in suggestion_text.split(";") if s.strip()]
+            except Exception:
+                suggestions = []
+
+        # Return structured JSON
+        result = {
             "confidence_score": round(llm_score, 2),
             "similarity_score": similarity_score,
-            "route_to_data_agents": route_to_data_agents
-        })
+            "route_to_data_agents": route_to_data_agents,
+            "suggestions": suggestions,
+        }
+        return json.dumps(result)
     
 from crewai.tools import BaseTool
 from typing import Type
