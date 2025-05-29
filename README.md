@@ -168,7 +168,7 @@ flowchart LR
 
 ```bash
 # Clone the repository
-https://github.com/sannidhayj20/deployed-crew.git
+git clone https://github.com/sannidhayj20/deployed-crew.git
 cd deployed-crew
 
 # Create virtual environment
