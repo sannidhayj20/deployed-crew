@@ -60,7 +60,7 @@ voice_financier:
     leadership and professional gravitas.
 ```
 
-#Tasks
+# Tasks
 ```
 check_prompt_task:
   description: >
@@ -144,24 +144,125 @@ broadcast_brief_task:
     A clean, well-structured, 3-paragraph market brief in markdown format, free of special characters and optimized for 
     natural text-to-speech rendering. The tone should reflect confidence, clarity, and professional financial insight.
 ```
-#Tools
+# Tools
+## 📊 Tools Overview
 
-| **Tool Name**                  | **Prompt(s) Used in `_run()`** |
-|-------------------------------|---------------------------------|
-| `MyCustomTool`                | _None_ (placeholder output only) |
-| `ConfidenceCheckerTool`       | 1. **Clarity Rating:**  
-`Rate this query on clarity and specificity (1-10):\n{query}\nRespond only with the number.`  
-2. **Suggestions (if low confidence):**  
-`Suggest 3 ways to improve this user query to make it clearer and more specific:\n{query}\nRespond with 3 short suggestions, separated by semicolons.` |
-| `MarketDataResearcherTool`    | **Entity Extraction:**  
-`Extract company names or tickers related to this query:\n{query}\nRespond only with comma-separated symbols or names.` |
-| `FilingScraperTool`           | 1. **Entity Extraction:**  
-`Extract company names or tickers related to this query:\n{query}\nRespond only with comma-separated symbols or names.`  
-2. **Summary Generation:**  
-`Summarize this earnings report or disclosure excerpt.\nHighlight EPS surprise, revenue change, guidance updates, and tone.\n---\n{content[:3000]}` |
-| `RetrieverTool`               | _No LLM prompt used_ (uses vector search directly) |
-| `QuantitativeAnalystTool`     | **Quant Analysis Prompt:**  
-`Given the following query:\n{query}\nAnalyze and summarize:\n- Allocation delta\n- Earnings surprises\n- Risk exposure\n- Regional sentiment\nReturn structured JSON output.` |
-| `LanguageNarratorTool`        | **Narrative Prompt:**  
-`Write a concise 3-paragraph spoken market briefing:\nQuery: {query}\nInclude:\n- Exposure change\n- Key earnings surprises\n- Sentiment summary\nStyle: Confident, professional, Bloomberg-style tone.` |
-| `VoiceBroadcasterTool`        | _No LLM prompt_ (placeholder for TTS system) |
+| Tool Name                | Prompt(s) Used in `_run()`                                   |
+|--------------------------|---------------------------------------------------------------|
+| MyCustomTool             | None (placeholder output only)                                |
+| ConfidenceCheckerTool    | [1] Clarity Rating, [2] Suggestions if low confidence          |
+| MarketDataResearcherTool | [3] Entity Extraction                                         |
+| FilingScraperTool        | [3] Entity Extraction, [4] Summary Generation                 |
+| RetrieverTool            | No LLM prompt used (uses vector search directly)              |
+| QuantitativeAnalystTool  | [5] Quant Analysis Prompt                                     |
+| LanguageNarratorTool     | [6] Market Briefing Narrative Prompt                          |
+| VoiceBroadcasterTool     | No LLM prompt (used for TTS output)                           |
+
+## 🧠 Prompt References
+
+### [1] Clarity Rating Prompt (ConfidenceCheckerTool)
+
+```csharp
+Rate this query on clarity and specificity (1-10):
+{query}
+Respond only with the number.
+```
+
+### [2] Suggestions Prompt (ConfidenceCheckerTool)
+
+```csharp
+Suggest 3 ways to improve this user query to make it clearer and more specific:
+{query}
+Respond with 3 short suggestions, separated by semicolons.
+```
+
+### [3] Entity Extraction Prompt (MarketDataResearcherTool & FilingScraperTool)
+
+```csharp
+Extract company names or tickers related to this query:
+{query}
+Respond only with comma-separated symbols or names.
+```
+
+### [4] Summary Generation Prompt (FilingScraperTool)
+
+```yaml
+Summarize this earnings report or disclosure excerpt.
+Highlight EPS surprise, revenue change, guidance updates, and tone.
+---
+{content[:3000]}
+```
+
+### [5] Quant Analysis Prompt (QuantitativeAnalystTool)
+
+```diff
+Given the following query:
+{query}
+Analyze and summarize:
+- Allocation delta
+- Earnings surprises
+- Risk exposure
+- Regional sentiment
+Return structured JSON output.
+```
+
+### [6] Market Briefing Narrative Prompt (LanguageNarratorTool)
+
+```yaml
+Write a concise 3-paragraph spoken market briefing:
+Query: {query}
+Include:
+- Exposure change
+- Key earnings surprises
+- Sentiment summary
+Style: Confident, professional, Bloomberg-style tone.
+```
+
+## 📝 Tool Descriptions
+
+### MyCustomTool
+- **Purpose**: Placeholder tool for custom implementations
+- **Prompts**: None - returns placeholder output only
+- **Usage**: Development template
+
+### ConfidenceCheckerTool
+- **Purpose**: Evaluates query clarity and provides improvement suggestions
+- **Prompts**: Clarity rating (1-10) and improvement suggestions
+- **Usage**: Query validation and enhancement
+
+### MarketDataResearcherTool
+- **Purpose**: Extracts market entities from user queries
+- **Prompts**: Entity extraction for company names/tickers
+- **Usage**: Market research and data collection
+
+### FilingScraperTool
+- **Purpose**: Processes financial filings and earnings reports
+- **Prompts**: Entity extraction and content summarization
+- **Usage**: Financial document analysis
+
+### RetrieverTool
+- **Purpose**: Vector-based information retrieval
+- **Prompts**: None - uses direct vector search
+- **Usage**: Knowledge base querying
+
+### QuantitativeAnalystTool
+- **Purpose**: Performs quantitative financial analysis
+- **Prompts**: Structured analysis with JSON output
+- **Usage**: Portfolio and risk analysis
+
+### LanguageNarratorTool
+- **Purpose**: Generates market briefing narratives
+- **Prompts**: Bloomberg-style market briefing generation
+- **Usage**: Content creation for market updates
+
+### VoiceBroadcasterTool
+- **Purpose**: Text-to-speech output generation
+- **Prompts**: None - handles TTS conversion
+- **Usage**: Audio content delivery
+
+## 🔧 Implementation Notes
+
+- Tools using prompts: 5 out of 8 tools utilize LLM prompts
+- Most common prompt type: Entity extraction (used by 2 tools)
+- Output formats: Text, JSON, Audio (TTS)
+- Primary use case: Financial market analysis and reporting
