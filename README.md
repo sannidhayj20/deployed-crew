@@ -163,28 +163,27 @@ flowchart LR
   - OpenAI GPT
   - Google Gemini
   - AssemblyAI
-  - Alpha Vantage (optional)
 
 ### Local Installation
 
 ```bash
 # Clone the repository
-git clone https://github.com/yourusername/global-finance-assistant.git
-cd global-finance-assistant
+https://github.com/sannidhayj20/deployed-crew.git
+cd deployed-crew
 
 # Create virtual environment
 python -m venv venv
 source venv/bin/activate  # On Windows: venv\Scripts\activate
 
 # Install dependencies
-pip install -r requirements.txt
+pip install -r .\src\building_a_multi_agent_finance_assistant_with_voice_interaction\requirements.txt
 
 # Set up environment variables
 cp .env.example .env
 # Edit .env with your API keys
 
 # Run locally
-streamlit run main.py
+streamlit run .\src\building_a_multi_agent_finance_assistant_with_voice_interaction\app.py           
 ```
 
 ### Environment Variables
@@ -195,8 +194,6 @@ Create a `.env` file or set Streamlit secrets:
 OPENAI_API_KEY=your_openai_key_here
 GEMINI_API_KEY=your_gemini_key_here
 ASSEMBLY_AI_API=your_assemblyai_key_here
-ALPHA_VANTAGE_API_KEY=your_alphavantage_key_here  # Optional
-SERPER_API_KEY=your_serper_key_here  # For web search
 ```
 
 ### Streamlit Cloud Deployment
@@ -298,20 +295,6 @@ class CustomMarketTool(BaseTool):
         return market_data
 ```
 
-### Extending Agent Capabilities
-
-Create specialized agents for specific markets:
-
-```python
-@agent
-def crypto_analyst(self) -> Agent:
-    return Agent(
-        role="Cryptocurrency Market Specialist",
-        goal="Analyze digital asset trends and DeFi metrics",
-        backstory="Expert in blockchain analytics and crypto markets",
-        tools=[CryptoDataTool(), DeFiAnalyticsTool()],
-    )
-```
 
 ## 📈 Monitoring & Analytics
 
