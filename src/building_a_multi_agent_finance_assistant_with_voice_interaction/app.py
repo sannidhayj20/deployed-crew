@@ -110,6 +110,7 @@ else:
 # Process Query
 # --------------------
 if st.button("🚀 Get Market Brief"):
+    st.markdown("⚠️ Responses Do take about 5 minutes to generate")
     if not user_query.strip():
         st.error("Please enter or record a valid query.")
         st.stop()
