@@ -1,7 +1,4 @@
 import sys
-import pysqlite3
-sys.modules["sqlite3"] = pysqlite3
-
 import os
 import io
 import json
@@ -9,8 +6,9 @@ import time
 import streamlit as st
 from io import BytesIO
 import requests
-import assemblyai as aai
 from gtts import gTTS
+import assemblyai as aai
+
 from crew import BuildingAMultiAgentFinanceAssistantWithVoiceInteractionCrew
 
 # --------------------
@@ -23,13 +21,11 @@ st.markdown("Speak or type your financial query — get a spoken response.")
 # --------------------
 # Load secrets
 # --------------------
+aai.api_key = st.secrets["ASSEMBLYAI_API_KEY"]
 openai_api_key = st.secrets["OPENAI_API_KEY"]
 gemini_api_key = st.secrets["GEMINI_API_KEY"]
-assemblyai_api_key = st.secrets["ASSEMBLY_AI_API"]
 
 os.environ["OPENAI_API_KEY"] = openai_api_key
-
-aai.settings.api_key = assemblyai_api_key
 
 # --------------------
 # Sidebar settings
@@ -52,9 +48,8 @@ def transcribe_audio_bytes(audio_bytes):
 # --------------------
 # Gemini Query Validator
 # --------------------
-import google.generativeai as genai
-
 def is_query_valid(query, gemini_key):
+    import google.generativeai as genai
     genai.configure(api_key=gemini_key)
     model = genai.GenerativeModel("gemini-1.5-flash")
     prompt = f"""
@@ -105,8 +100,12 @@ else:
 # --------------------
 # Process Query
 # --------------------
+if not user_query and "transcribed_query" in st.session_state:
+    user_query = st.session_state.transcribed_query
+
 if st.button("🚀 Get Market Brief"):
     st.markdown("⚠️ Responses Do take about 5 minutes to generate")
+
     if not user_query.strip():
         st.error("Please enter or record a valid query.")
         st.stop()
@@ -115,7 +114,7 @@ if st.button("🚀 Get Market Brief"):
     validation = is_query_valid(user_query, gemini_api_key)
 
     if not validation["is_finance"]:
-        st.error("🚩 Not a finance-related query.")
+        st.error("🛑 Not a finance-related query.")
         st.markdown(f"🔎 Reason: {validation['reason']}")
         st.stop()
 
@@ -128,12 +127,12 @@ if st.button("🚀 Get Market Brief"):
     crew = BuildingAMultiAgentFinanceAssistantWithVoiceInteractionCrew()
     result = crew.crew().kickoff(inputs={"query": user_query})
     st.markdown("## 📊 Market Brief Result")
-    st.markdown(str(result))  # Safely display result
+    st.markdown(str(result))
 
     if voice_enabled:
         st.markdown("### 🔊 Voice Output")
         try:
-            tts = gTTS(text=str(result), lang="en")  # Ensure result is string
+            tts = gTTS(text=str(result), lang="en")
             audio_io = io.BytesIO()
             tts.write_to_fp(audio_io)
             audio_io.seek(0)
