@@ -46,19 +46,27 @@ def transcribe_audio_bytes(audio_bytes):
         raise RuntimeError(f"AssemblyAI transcription error: {e}")
 
 # --------------------
-# Gemini Query Validator
+# Gemini Query Validator with Suggestions
 # --------------------
 def is_query_valid(query, gemini_key):
     import google.generativeai as genai
     genai.configure(api_key=gemini_key)
     model = genai.GenerativeModel("gemini-1.5-flash")
     prompt = f"""
-    You are a compliance officer. Validate this query. Output ONLY JSON like:
+    You are a compliance officer for a financial assistant.
+
+    Evaluate the following query and respond ONLY with JSON like:
     {{
       "is_finance": true,
       "is_ethical": true,
-      "reason": "..." 
+      "confidence": 42,
+      "reason": "Explain the confidence level briefly.",
+      "suggestions": [
+        "Improved version of the query suggestion 1",
+        "Improved version of the query suggestion 2"
+      ]
     }}
+
     Query: {query}
     """
     try:
@@ -67,7 +75,13 @@ def is_query_valid(query, gemini_key):
         json_part = text[text.find("{"):text.rfind("}") + 1]
         return json.loads(json_part)
     except Exception as e:
-        return {"is_finance": False, "is_ethical": False, "reason": f"Validation failed: {e}"}
+        return {
+            "is_finance": False,
+            "is_ethical": False,
+            "confidence": 0,
+            "reason": f"Validation failed: {e}",
+            "suggestions": []
+        }
 
 # --------------------
 # Main Input Section
@@ -123,6 +137,44 @@ if st.button("🚀 Get Market Brief"):
         st.markdown(f"📌 Reason: {validation['reason']}")
         st.stop()
 
+    if validation.get("confidence", 0) < 50:
+        reason = validation.get("reason", "Low confidence in this query.")
+        confidence = validation.get("confidence", 0)
+        suggestions = validation.get("suggestions", [])
+
+        st.error("🤔 Gemini has low confidence in this query.")
+        st.markdown(f"📉 Confidence Score: **{confidence}%**")
+        st.markdown(f"📌 Reason: {reason}")
+
+        voice_message = f"The system has low confidence in your query. Confidence is {confidence} percent. Reason: {reason}."
+
+        if suggestions:
+            st.markdown("### 💡 Suggestions to improve your query:")
+            for s in suggestions:
+                st.markdown(f"- {s}")
+            suggestion_text = "Here are some suggestions: " + "; ".join(suggestions)
+            voice_message += " " + suggestion_text
+        else:
+            voice_message += " Try making your query more specific, financial in nature, and clearly ethical."
+
+        # 🔊 Play voice response
+        if voice_enabled:
+            try:
+                tts = gTTS(text=voice_message, lang="en")
+                audio_io = io.BytesIO()
+                tts.write_to_fp(audio_io)
+                audio_io.seek(0)
+                st.markdown("### 🔊 Voice Explanation")
+                st.audio(audio_io, format="audio/mp3")
+            except Exception as e:
+                st.warning("🔇 Failed to synthesize voice.")
+                st.text(f"Error: {e}")
+
+        st.stop()
+
+    # --------------------
+    # Run Multi-Agent Crew
+    # --------------------
     st.info("🤖 Running multi-agent finance assistant...")
     crew = BuildingAMultiAgentFinanceAssistantWithVoiceInteractionCrew()
     result = crew.crew().kickoff(inputs={"query": user_query})
