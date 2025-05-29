@@ -1,54 +1,49 @@
-# BuildingAMultiAgentFinanceAssistantWithVoiceInteraction Crew
+# 💵 Global Finance Assistant – Technical Documentation
 
-Welcome to the BuildingAMultiAgentFinanceAssistantWithVoiceInteraction Crew project, powered by [crewAI](https://crewai.com). This template is designed to help you set up a multi-agent AI system with ease, leveraging the powerful and flexible framework provided by crewAI. Our goal is to enable your agents to collaborate effectively on complex tasks, maximizing their collective intelligence and capabilities.
+📌 A voice-enabled multi-agent assistant that delivers spoken market briefings based on user queries.  
+**Built with:** CrewAI, LangChain, OpenAI, ChromaDB, Streamlit  
 
-## Installation
+🔗 [Live Demo](https://finance-research-crew.streamlit.app/)
 
-Ensure you have Python >=3.10 <3.13 installed on your system. This project uses [UV](https://docs.astral.sh/uv/) for dependency management and package handling, offering a seamless setup and execution experience.
+---
 
-First, if you haven't already, install uv:
+## 🔊 Input Flow
 
-```bash
-pip install uv
+Users can provide input in two ways:
+
+- **Voice**  
+  Recorded via `audiorecorder`, transcribed using **AssemblyAI API**
+- **Text**  
+  Entered manually into the Streamlit text input field
+
+> ✅ Both types are unified into a single query string before moving to the next stage.
+
+---
+
+## 🔍 Gemini-Based Query Validation
+
+All inputs go through a **Gemini-powered validation** step to ensure:
+
+- The query is financially relevant  
+- It is ethically appropriate  
+- It has sufficient clarity and specificity  
+
+### ✅ Prompt Used
+
+```json
+You are a compliance officer for a financial assistant.
+
+Evaluate the following query and respond ONLY with JSON like:
+{
+  "is_finance": true,
+  "is_ethical": true,
+  "confidence": 42,
+  "reason": "Explain the confidence level briefly.",
+  "suggestions": [
+    "Improved version of the query suggestion 1",
+    "Improved version of the query suggestion 2"
+  ]
+}
+
+Query: {user_query}
 ```
-
-Next, navigate to your project directory and install the dependencies:
-
-(Optional) Lock the dependencies and install them by using the CLI command:
-```bash
-crewai install
-```
-### Customizing
-
-**Add your `OPENAI_API_KEY` into the `.env` file**
-
-- Modify `src/building_a_multi_agent_finance_assistant_with_voice_interaction/config/agents.yaml` to define your agents
-- Modify `src/building_a_multi_agent_finance_assistant_with_voice_interaction/config/tasks.yaml` to define your tasks
-- Modify `src/building_a_multi_agent_finance_assistant_with_voice_interaction/crew.py` to add your own logic, tools and specific args
-- Modify `src/building_a_multi_agent_finance_assistant_with_voice_interaction/main.py` to add custom inputs for your agents and tasks
-
-## Running the Project
-
-To kickstart your crew of AI agents and begin task execution, run this from the root folder of your project:
-
-```bash
-$ crewai run
-```
-
-This command initializes the building_a_multi_agent_finance_assistant_with_voice_interaction Crew, assembling the agents and assigning them tasks as defined in your configuration.
-
-This example, unmodified, will run the create a `report.md` file with the output of a research on LLMs in the root folder.
-
-## Understanding Your Crew
-
-The building_a_multi_agent_finance_assistant_with_voice_interaction Crew is composed of multiple AI agents, each with unique roles, goals, and tools. These agents collaborate on a series of tasks, defined in `config/tasks.yaml`, leveraging their collective skills to achieve complex objectives. The `config/agents.yaml` file outlines the capabilities and configurations of each agent in your crew.
-
-## Support
-
-For support, questions, or feedback regarding the BuildingAMultiAgentFinanceAssistantWithVoiceInteraction Crew or crewAI.
-- Visit our [documentation](https://docs.crewai.com)
-- Reach out to us through our [GitHub repository](https://github.com/joaomdmoura/crewai)
-- [Join our Discord](https://discord.com/invite/X4JWnZnxPb)
-- [Chat with our docs](https://chatg.pt/DWjSBZn)
-
-Let's create wonders together with the power and simplicity of crewAI.
