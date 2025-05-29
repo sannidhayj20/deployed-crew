@@ -22,4 +22,5 @@ pysqlite3-binary
 pydub
 streamlit-audiorecorder
 elevenlabs
+assemblyai
 python-ffmpeg
