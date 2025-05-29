@@ -323,32 +323,7 @@ class CustomMarketTool(BaseTool):
 - No investment advice generation
 - Information-only market briefings
 
-## 🤝 Contributing
 
-### Development Setup
-
-```bash
-# Install development dependencies
-pip install -r requirements-dev.txt
-
-# Run tests
-pytest tests/
-
-# Code formatting
-black .
-isort .
-
-# Type checking
-mypy .
-```
-
-### Contributing Guidelines
-
-1. Fork the repository
-2. Create a feature branch
-3. Add tests for new functionality
-4. Ensure all tests pass
-5. Submit a pull request
 
 ## 📋 API Reference
 
@@ -387,14 +362,6 @@ Primary crew orchestrator class.
 - Verify audio output device
 - Try shorter text inputs
 
-### Debug Mode
-
-Enable verbose logging:
-
-```python
-import logging
-logging.basicConfig(level=logging.DEBUG)
-```
 
 ## 📚 Resources
 
@@ -424,7 +391,7 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 - **Issues**: [GitHub Issues](https://github.com/yourusername/global-finance-assistant/issues)
 - **Discussions**: [GitHub Discussions](https://github.com/yourusername/global-finance-assistant/discussions)
-- **Email**: support@yourfinanceassistant.com
+- **Email**: sannidhay2004@gmail.com
 
 ---
 
