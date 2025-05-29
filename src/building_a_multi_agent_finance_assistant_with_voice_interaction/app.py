@@ -25,7 +25,7 @@ st.markdown("Speak or type your financial query — get a spoken response.")
 # --------------------
 openai_api_key = st.secrets["OPENAI_API_KEY"]
 gemini_api_key = st.secrets["GEMINI_API_KEY"]
-assemblyai_api_key = st.secrets["ASSEMBLYAI_API_KEY"]
+assemblyai_api_key = st.secrets["ASSEMBLY_AI_API"]
 
 os.environ["OPENAI_API_KEY"] = openai_api_key
 
