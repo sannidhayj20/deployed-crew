@@ -70,9 +70,13 @@ narrate_market_brief_task:
 
 broadcast_brief_task:
   description: >
-    Convert this into a proper and detailed market brief into spoken voice using a confident, polished male voice.
-    Inject financial jargon where appropriate. Use the final narrative from LLM:
+    Transform the following into a polished, confident, and voice-ready market brief using a sophisticated financial tone. 
+    Use a clear, professional male voice style, and enrich the narrative with financial jargon where appropriate.
+    Eliminate special characters, escape sequences, or formatting symbols that may interfere with speech synthesis.
+    Base the content on the final LLM-generated narrative below:
     "{query}"
   agent: voice_financier
   expected_output: >
-    A polished,3 para Long and detailed and confident report type narrative in markdown format ready for text-to-speech
+    A clean, well-structured, 3-paragraph market brief in markdown format, free of special characters and optimized for 
+    natural text-to-speech rendering. The tone should reflect confidence, clarity, and professional financial insight.
+
