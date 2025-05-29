@@ -232,7 +232,7 @@ After all agents complete their tasks:
 | LLMs | Gemini, OpenAI |
 | Tools | yfinance, BeautifulSoup, ChromaDB |
 | UI | Streamlit |
-| TTS | gTTS / Piper |
+| STT-TTS | AssemblyAI/gTTS  |
 | Hosting | Streamlit Community Cloud |
 
 ---
