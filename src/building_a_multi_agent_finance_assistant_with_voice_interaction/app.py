@@ -7,12 +7,11 @@ import io
 import json
 import time
 import streamlit as st
-import requests
 from io import BytesIO
-import google.generativeai as genai
-from crew import BuildingAMultiAgentFinanceAssistantWithVoiceInteractionCrew
-from elevenlabs.client import ElevenLabs
+import requests
+import assemblyai as aai
 from gtts import gTTS
+from crew import BuildingAMultiAgentFinanceAssistantWithVoiceInteractionCrew
 
 # --------------------
 # Page config
@@ -26,9 +25,11 @@ st.markdown("Speak or type your financial query — get a spoken response.")
 # --------------------
 openai_api_key = st.secrets["OPENAI_API_KEY"]
 gemini_api_key = st.secrets["GEMINI_API_KEY"]
-elevenlabs_api_key = st.secrets["ELEVEN_API_KEY"]
+assemblyai_api_key = st.secrets["ASSEMBLYAI_API_KEY"]
 
 os.environ["OPENAI_API_KEY"] = openai_api_key
+
+aai.settings.api_key = assemblyai_api_key
 
 # --------------------
 # Sidebar settings
@@ -38,26 +39,21 @@ record_query = st.sidebar.checkbox("🎤 Record voice input instead of typing?")
 voice_enabled = st.sidebar.checkbox("🔊 Enable voice output", value=True)
 
 # --------------------
-# ElevenLabs Transcription
+# AssemblyAI Transcription
 # --------------------
-elevenlabs = ElevenLabs(api_key=elevenlabs_api_key)
-
-def transcribe_audio_bytes_elevenlabs(audio_bytes):
+def transcribe_audio_bytes(audio_bytes):
     try:
-        transcription = elevenlabs.speech_to_text.convert(
-            file=BytesIO(audio_bytes),
-            model_id="scribe_v1",
-            tag_audio_events=True,
-            language_code="eng",
-            diarize=True,
-        )
-        return transcription.text
+        transcriber = aai.Transcriber()
+        transcript = transcriber.transcribe(audio_bytes)
+        return transcript.text
     except Exception as e:
-        raise RuntimeError(f"ElevenLabs transcription error: {e}")
+        raise RuntimeError(f"AssemblyAI transcription error: {e}")
 
 # --------------------
 # Gemini Query Validator
 # --------------------
+import google.generativeai as genai
+
 def is_query_valid(query, gemini_key):
     genai.configure(api_key=gemini_key)
     model = genai.GenerativeModel("gemini-1.5-flash")
@@ -95,7 +91,7 @@ if record_query:
 
         if st.button("📝 Transcribe Audio"):
             try:
-                user_query = transcribe_audio_bytes_elevenlabs(audio_bytes)
+                user_query = transcribe_audio_bytes(audio_bytes)
                 if user_query:
                     st.session_state.transcribed_query = user_query
                     st.markdown(f"📝 **Transcribed Query**: `{user_query}`")
@@ -116,10 +112,10 @@ if st.button("🚀 Get Market Brief"):
         st.stop()
 
     st.info("🔍 Validating query...")
-    validation = is_query_valid(user_query, st.secrets["GEMINI_API_KEY"])
+    validation = is_query_valid(user_query, gemini_api_key)
 
     if not validation["is_finance"]:
-        st.error("🛑 Not a finance-related query.")
+        st.error("🚩 Not a finance-related query.")
         st.markdown(f"🔎 Reason: {validation['reason']}")
         st.stop()
 
