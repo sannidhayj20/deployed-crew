@@ -20,11 +20,11 @@ os.environ["OPENAI_API_KEY"] = os.getenv("OPENAI_API_KEY")
 class BuildingAMultiAgentFinanceAssistantWithVoiceInteractionCrew:
 
     def print_output(self, output: TaskOutput):
-        """Streamlit-friendly callback to display full agent name and message"""
+        """Streamlit-friendly callback to display full agent name and message in collapsible chat history"""
         if "chat_history" not in st.session_state:
             st.session_state.chat_history = []
 
-        # Convert non-string output (like dict, list) to a readable string
+        # Convert non-string outputs (like dicts/lists) to nicely formatted strings
         clean_message = output.raw
         if not isinstance(clean_message, str):
             try:
@@ -33,17 +33,20 @@ class BuildingAMultiAgentFinanceAssistantWithVoiceInteractionCrew:
             except Exception:
                 clean_message = str(clean_message)
 
+        # Store the chat
         st.session_state.chat_history.append({
             "agent": str(output.agent),
             "message": clean_message
         })
 
+        # Create container if not present
         if "chat_placeholder" not in st.session_state:
             st.session_state.chat_placeholder = st.empty()
 
         with st.session_state.chat_placeholder.container():
+            chat_blocks = []
             for chat in st.session_state.chat_history:
-                st.markdown(f"""
+                chat_html = f"""
                 <div style="border: 1px solid #ccc; border-radius: 10px; padding: 1rem; margin: 1rem 0;
                             background-color: #f9f9f9; box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);">
                     <div style="font-weight: bold; margin-bottom: 0.5rem; color: #444;">
@@ -53,7 +56,19 @@ class BuildingAMultiAgentFinanceAssistantWithVoiceInteractionCrew:
                         {chat['message']}
                     </div>
                 </div>
-                """, unsafe_allow_html=True)
+                """
+                chat_blocks.append(chat_html)
+
+            full_chat_html = "\n".join(chat_blocks)
+
+            st.markdown(f"""
+            <details style="margin-top: 1rem;">
+                <summary style="font-size: 1.2rem; font-weight: bold; cursor: pointer;">
+                    📁 Chat History
+                </summary>
+                {full_chat_html}
+            </details>
+            """, unsafe_allow_html=True)
 
     @agent
     def confidence_checker(self) -> Agent:
