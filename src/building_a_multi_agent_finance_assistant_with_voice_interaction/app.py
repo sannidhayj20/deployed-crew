@@ -21,7 +21,7 @@ st.markdown("Speak or type your financial query — get a spoken response.")
 # --------------------
 # Load secrets
 # --------------------
-aai.api_key = st.secrets["ASSEMBLYAI_API"]
+aai.api_key = st.secrets["ASSEMBLY_AI_API"]
 openai_api_key = st.secrets["OPENAI_API_KEY"]
 gemini_api_key = st.secrets["GEMINI_API_KEY"]
 
