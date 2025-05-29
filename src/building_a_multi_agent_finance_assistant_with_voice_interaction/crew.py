@@ -12,9 +12,7 @@ os.environ["OPENAI_API_KEY"] = os.getenv("OPENAI_API_KEY")
 
 @CrewBase
 class BuildingAMultiAgentFinanceAssistantWithVoiceInteractionCrew:
-    """Class to define the multi-agent finance assistant crew with voice interaction"""
-    @staticmethod
-    def print_output(output: TaskOutput):
+   def print_output(output: TaskOutput):
         """Streamlit-friendly callback to display full agent name and message in a styled collapsible box"""
     
         # Initialize chat history list if not present
@@ -32,10 +30,10 @@ class BuildingAMultiAgentFinanceAssistantWithVoiceInteractionCrew:
             st.session_state.chat_placeholder = st.empty()
     
         with st.session_state.chat_placeholder.container():
-            # Construct all chat messages as one HTML block
-            chat_html = ""
+            # Construct all chat messages as one HTML block, ensuring proper closing of tags
+            chat_blocks = []
             for chat in st.session_state.chat_history:
-                chat_html += f"""
+                block = f"""
                 <div style="border: 1px solid #ccc; border-radius: 10px; padding: 1rem; margin: 1rem 0;
                             background-color: #f9f9f9; box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);">
                     <div style="font-weight: bold; margin-bottom: 0.5rem; color: #444;">
@@ -46,14 +44,18 @@ class BuildingAMultiAgentFinanceAssistantWithVoiceInteractionCrew:
                     </div>
                 </div>
                 """
+                chat_blocks.append(block)
     
-            # Wrap everything in a collapsible <details> tag
+            full_chat_html = "\n".join(chat_blocks)
+    
+            # Final collapsible HTML
             st.markdown(f"""
             <details style="margin-top: 1rem;">
                 <summary style="font-size: 1.1rem; font-weight: bold; cursor: pointer;">🗂️ Chat History</summary>
-                {chat_html}
+                {full_chat_html}
             </details>
             """, unsafe_allow_html=True)
+
     @agent
     def confidence_checker(self) -> Agent:
         return Agent(
