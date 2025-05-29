@@ -24,3 +24,6 @@ streamlit-audiorecorder
 elevenlabs
 assemblyai
 python-ffmpeg
+langchain-chroma
+chromadb
+langchain-openai
