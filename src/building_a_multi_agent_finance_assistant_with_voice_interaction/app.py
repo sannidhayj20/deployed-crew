@@ -121,7 +121,7 @@ if not user_query and "transcribed_query" in st.session_state:
     user_query = st.session_state.transcribed_query
 
 if st.button("🚀 Get Market Brief"):
-    st.markdown("⚠️ Responses may take 1 to 5 minutes for common tasks")
+    st.markdown("🧑‍🏭 Responses may take 1 to 5 minutes for common tasks")
 
     if not user_query.strip():
         st.error("Please enter or record a valid query.")
