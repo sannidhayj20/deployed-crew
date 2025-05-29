@@ -15,36 +15,45 @@ class BuildingAMultiAgentFinanceAssistantWithVoiceInteractionCrew:
     """Class to define the multi-agent finance assistant crew with voice interaction"""
     @staticmethod
     def print_output(output: TaskOutput):
-        """Streamlit-friendly callback to display full agent name and message in a styled box"""
+    """Streamlit-friendly callback to display full agent name and message in a styled collapsible box"""
 
-        # Initialize chat history list if not present
-        if "chat_history" not in st.session_state:
-            st.session_state.chat_history = []
+    # Initialize chat history list if not present
+    if "chat_history" not in st.session_state:
+        st.session_state.chat_history = []
 
-        # Save the new message
-        st.session_state.chat_history.append({
-            "agent": str(output.agent),
-            "message": output.raw
-        })
+    # Save the new message
+    st.session_state.chat_history.append({
+        "agent": str(output.agent),
+        "message": output.raw
+    })
 
-        # Clear and rebuild the container with full history
-        if "chat_placeholder" not in st.session_state:
-            st.session_state.chat_placeholder = st.empty()
+    # Clear and rebuild the container with full history
+    if "chat_placeholder" not in st.session_state:
+        st.session_state.chat_placeholder = st.empty()
 
-        with st.session_state.chat_placeholder.container():
-            for chat in st.session_state.chat_history:
-                st.markdown(f"""
-                <div style="border: 1px solid #ccc; border-radius: 10px; padding: 1rem; margin: 1rem 0;
-                            background-color: #f9f9f9; box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);">
-                    <div style="font-weight: bold; margin-bottom: 0.5rem; color: #444;">
-                        👤 <span>{chat['agent']}</span>
-                    </div>
-                    <div style="white-space: pre-wrap; line-height: 1.6; color: #222;">
-                        {chat['message']}
-                    </div>
+    with st.session_state.chat_placeholder.container():
+        # Construct all chat messages as one HTML block
+        chat_html = ""
+        for chat in st.session_state.chat_history:
+            chat_html += f"""
+            <div style="border: 1px solid #ccc; border-radius: 10px; padding: 1rem; margin: 1rem 0;
+                        background-color: #f9f9f9; box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);">
+                <div style="font-weight: bold; margin-bottom: 0.5rem; color: #444;">
+                    👤 <span>{chat['agent']}</span>
                 </div>
-                """, unsafe_allow_html=True)
+                <div style="white-space: pre-wrap; line-height: 1.6; color: #222;">
+                    {chat['message']}
+                </div>
+            </div>
+            """
 
+        # Wrap everything in a collapsible <details> tag
+        st.markdown(f"""
+        <details style="margin-top: 1rem;">
+            <summary style="font-size: 1.1rem; font-weight: bold; cursor: pointer;">🗂️ Chat History</summary>
+            {chat_html}
+        </details>
+        """, unsafe_allow_html=True)
     @agent
     def confidence_checker(self) -> Agent:
         return Agent(
