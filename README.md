@@ -207,7 +207,7 @@ Style: Confident, professional, Bloomberg-style tone.
 ### 7. Voice Broadcaster
 🎯 **Purpose:** Convert final narrative into speech.
 
-🧩 **Prompt:** None – acts as wrapper around TTS engine (gTTS / Piper)
+🧩 **Prompt:** None – acts as wrapper around TTS engine (gTTS / AssemblyAi)
 
 📦 **Output Example:**
 ```
