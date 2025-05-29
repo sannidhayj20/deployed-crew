@@ -48,11 +48,11 @@ class BuildingAMultiAgentFinanceAssistantWithVoiceInteractionCrew:
             for chat in st.session_state.chat_history:
                 chat_blocks += f"""
                 <div style="border: 1px solid #ccc; border-radius: 10px; padding: 1rem; margin: 1rem 0;
-                            background-color: #f9f9f9; box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);">
-                    <div style="font-weight: bold; margin-bottom: 0.5rem; color: #444;">
-                        👤 <span>{chat['agent']}</span>
+                            background-color: #e8f5e9; box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);">
+                    <div style="font-weight: bold; margin-bottom: 0.5rem; color: #2e7d32;">
+                        🧠 <span>{chat['agent']}</span>
                     </div>
-                    <div style="white-space: pre-wrap; line-height: 1.6; color: #222;">
+                    <div style="white-space: pre-wrap; line-height: 1.6; color: #1b1b1b;">
                         {chat['message']}
                     </div>
                 </div>
@@ -66,7 +66,7 @@ class BuildingAMultiAgentFinanceAssistantWithVoiceInteractionCrew:
             </details>
             """
 
-            # Render as raw HTML
+            # Render
             st.markdown(final_html, unsafe_allow_html=True)
     @agent
     def confidence_checker(self) -> Agent:
