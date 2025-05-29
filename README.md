@@ -23,44 +23,6 @@ The Global Finance Assistant is an advanced multi-agent system that transforms n
 
 ## 🏗️ Architecture Overview
 
-### System Architecture Diagram
-
-```mermaid
-graph TB
-    A[User Input] --> B{Input Type}
-    B -->|Voice| C[AssemblyAI Transcription]
-    B -->|Text| D[Direct Text Input]
-    C --> E[Query Unification]
-    D --> E
-    
-    E --> F[Gemini Query Validator]
-    F --> G{Valid Query?}
-    G -->|No| H[Error Response + Suggestions]
-    G -->|Yes| I[CrewAI Multi-Agent System]
-    
-    I --> J[Agent Orchestration]
-    
-    subgraph "Multi-Agent Workflow"
-        J --> K[1. Confidence Checker]
-        K --> L[2. Market Data Researcher]
-        L --> M[3. Filing Scraper]
-        M --> N[4. Knowledge Retriever]
-        N --> O[5. Quantitative Analyst]
-        O --> P[6. Language Narrator]
-        P --> Q[7. Voice Broadcaster]
-    end
-    
-    Q --> R[Final Market Brief]
-    R --> S[Text Display]
-    R --> T[gTTS Voice Synthesis]
-    T --> U[Audio Output]
-    
-    H --> V[Voice Feedback]
-    V --> W[End]
-    S --> W
-    U --> W
-```
-
 ### Agent Interaction Flow
 
 ```mermaid
