@@ -143,7 +143,7 @@ if st.button("🚀 Get Market Brief"):
         st.stop()
 
     st.info("🔍 Validating query...")
-    validation = is_query_valid(user_query, gemini_api_key)
+    validation = is_query_valid(user_query)
 
     if not validation["is_finance"]:
         st.error("🛑 Not a finance-related query.")
