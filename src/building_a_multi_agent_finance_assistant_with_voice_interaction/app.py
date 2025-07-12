@@ -51,11 +51,15 @@ def transcribe_audio_bytes(audio_bytes):
 # --------------------
 # Gemini Query Validator with Suggestions
 # --------------------
-import openai
+from openai import OpenAI
+from dotenv import load_dotenv
+import os
+import json
 
-def is_query_valid(query, openai_key):
-    openai.api_key = openai_key
+load_dotenv()  # Loads variables from .env into os.environ
+client = OpenAI()  # Uses OPENAI_API_KEY from the environment
 
+def is_query_valid(query):
     system_prompt = """
 You are a compliance officer for a financial assistant.
 
@@ -71,12 +75,11 @@ Evaluate the following query and respond ONLY with JSON like:
   ]
 }
 """
-
     user_prompt = f"Query: {query}"
 
     try:
-        response = openai.ChatCompletion.create(
-            model="gpt-4",  # or "gpt-3.5-turbo"
+        response = client.chat.completions.create(
+            model="gpt-4",
             messages=[
                 {"role": "system", "content": system_prompt},
                 {"role": "user", "content": user_prompt}
