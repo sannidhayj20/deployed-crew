@@ -51,32 +51,44 @@ def transcribe_audio_bytes(audio_bytes):
 # --------------------
 # Gemini Query Validator with Suggestions
 # --------------------
-def is_query_valid(query, gemini_key):
-    import google.generativeai as genai
-    genai.configure(api_key=gemini_key)
-    model = genai.GenerativeModel("gemini-1.5-flash")
-    prompt = f"""
-    You are a compliance officer for a financial assistant.
+import openai
 
-    Evaluate the following query and respond ONLY with JSON like:
-    {{
-      "is_finance": true,
-      "is_ethical": true,
-      "confidence": 42,
-      "reason": "Explain the confidence level briefly.",
-      "suggestions": [
-        "Improved version of the query suggestion 1",
-        "Improved version of the query suggestion 2"
-      ]
-    }}
+def is_query_valid(query, openai_key):
+    openai.api_key = openai_key
 
-    Query: {query}
-    """
+    system_prompt = """
+You are a compliance officer for a financial assistant.
+
+Evaluate the following query and respond ONLY with JSON like:
+{
+  "is_finance": true,
+  "is_ethical": true,
+  "confidence": 42,
+  "reason": "Explain the confidence level briefly.",
+  "suggestions": [
+    "Improved version of the query suggestion 1",
+    "Improved version of the query suggestion 2"
+  ]
+}
+"""
+
+    user_prompt = f"Query: {query}"
+
     try:
-        response = model.generate_content(prompt)
-        text = response.text.strip()
-        json_part = text[text.find("{"):text.rfind("}") + 1]
+        response = openai.ChatCompletion.create(
+            model="gpt-4",  # or "gpt-3.5-turbo"
+            messages=[
+                {"role": "system", "content": system_prompt},
+                {"role": "user", "content": user_prompt}
+            ],
+            temperature=0.3,
+            max_tokens=500,
+        )
+
+        text_response = response.choices[0].message.content.strip()
+        json_part = text_response[text_response.find("{"):text_response.rfind("}") + 1]
         return json.loads(json_part)
+
     except Exception as e:
         return {
             "is_finance": False,
